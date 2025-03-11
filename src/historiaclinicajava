@@ -1,0 +1,242 @@
+import .util.ArrayList;
+import java.util.List;
+import java.util.Comparator;
+
+class Patient {
+    private String id;
+    private String name;
+    private String lastName;
+    private String dob;
+    private String sex;
+    private double weightKg;
+    private double heightCm;
+    private String address;
+    private List<MedicalImage> scans;
+    private List<Condition> diagnoses;
+
+    public Patient(String id, String name, String lastName, String dob, String sex, double weightKg, double heightCm, String address) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.sex = sex;
+        this.weightKg = weightKg;
+        this.heightCm = heightCm;
+        this.address = address;
+        this.scans = new ArrayList<>();
+        this.diagnoses = new ArrayList<>();
+    }
+
+    public String getId() { return id; }
+    public String getName() { return name; }
+    public String getLastName() { return lastName; }
+    public String getDob() { return dob; }
+    public String getSex() { return sex; }
+    public double getWeightKg() { return weightKg; }
+    public double getHeightCm() { return heightCm; }
+    public String getAddress() { return address; }
+
+    public void updateInfo(String name, String lastName, String dob, String sex, double weightKg, double heightCm, String address) {
+        this.name = name;
+        this.lastName = lastName;
+        this.dob = dob;
+        this.sex = sex;
+        this.weightKg = weightKg;
+        this.heightCm = heightCm;
+        this.address = address;
+    }
+
+    public void addScan(MedicalImage scan) {
+        this.scans.add(scan);
+    }
+
+    public void removeScan(MedicalImage scan) {
+        this.scans.remove(scan);
+    }
+
+    public void addDiagnosis(Condition diagnosis) {
+        this.diagnoses.add(diagnosis);
+    }
+
+    public void removeDiagnosis(Condition diagnosis) {
+        this.diagnoses.remove(diagnosis);
+    }
+
+    public List<MedicalImage> getScans() {
+        return scans;
+    }
+
+    public List<Condition> getDiagnoses() {
+        return diagnoses;
+    }
+}
+
+class MedicalImage {
+    private String filename;
+    private String scanDate;
+    private String imageType;
+    private String notes;
+
+    public MedicalImage(String filename, String scanDate, String imageType, String notes) {
+        this.filename = filename;
+        this.scanDate = scanDate;
+        this.imageType = imageType;
+        this.notes = notes;
+    }
+
+    public String getFilename() { return filename; }
+    public String getScanDate() { return scanDate; }
+    public String getImageType() { return imageType; }
+    public String getNotes() { return notes; }
+}
+
+class Condition {
+    private String diseaseName;
+    private String diagnosisDate;
+    private String treatmentPlan;
+
+    public Condition(String diseaseName, String diagnosisDate, String treatmentPlan) {
+        this.diseaseName = diseaseName;
+        this.diagnosisDate = diagnosisDate;
+        this.treatmentPlan = treatmentPlan;
+    }
+
+    public String getDiseaseName() { return diseaseName; }
+    public String getDiagnosisDate() { return diagnosisDate; }
+    public String getTreatmentPlan() { return treatmentPlan; }
+}
+
+class HospitalRecord {
+    private List<Patient> patientDatabase;
+    private List<MedicalImage> scanArchive;
+    private List<Condition> conditionList;
+
+    public HospitalRecord() {
+        this.patientDatabase = new ArrayList<>();
+        this.scanArchive = new ArrayList<>();
+        this.conditionList = new ArrayList<>();
+    }
+
+    public Patient findPatient(String id) {
+        for (Patient patient : patientDatabase) {
+            if (patient.getId().equals(id)) {
+                return patient;
+            }
+        }
+        return null; // Patient not found
+    }
+
+    public List<Patient> tallestPatients() {
+        // Find the maximum height
+        double maxHeight = patientDatabase.stream()
+                .mapToDouble(Patient::getHeightCm)
+                .max()
+                .orElse(0); // Handle empty list case
+
+        // Collect patients with that maximum height
+        List<Patient> tallest = new ArrayList<>();
+        for(Patient patient : patientDatabase){
+            if (patient.getHeightCm() == maxHeight){
+                tallest.add(patient);
+            }
+        }
+
+        return tallest;
+    }
+
+    public int countFemaleDenguePatients() {
+        int count = 0;
+        for (Patient patient : patientDatabase) {
+            if (patient.getSex().equalsIgnoreCase("female")) {
+                for (Condition condition : patient.getDiagnoses()) {
+                    if (condition.getDiseaseName().equalsIgnoreCase("dengue")) {
+                        count++;
+                        break; // Avoid counting the same patient multiple times
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    public List<Patient> patientsByName() {
+        List<Patient> sortedList = new ArrayList<>(patientDatabase); // Create a copy
+        sortedList.sort(Comparator.comparing(Patient::getName));
+        return sortedList;
+    }
+
+    public List<Patient> patientsByWeight() {
+         List<Patient> sortedList = new ArrayList<>(patientDatabase); // Create a copy
+        sortedList.sort(Comparator.comparing(Patient::getWeightKg));
+        return sortedList;
+    }
+
+    public void registerPatient(Patient patient) {
+        this.patientDatabase.add(patient);
+    }
+
+    public void dischargePatient(Patient patient) {
+        this.patientDatabase.remove(patient);
+    }
+
+    public void modifyPatient(Patient patient) {
+        // Assuming you are replacing the existing patient with the modified one.
+        // You might need a more sophisticated ID-based lookup if equals is not
+        // properly overridden in Patient.
+        int index = patientDatabase.indexOf(patient);
+        if (index != -1) {
+            patientDatabase.set(index, patient);
+        }
+    }
+
+    public void storeScan(MedicalImage scan) {
+        this.scanArchive.add(scan);
+    }
+
+    public void discardScan(MedicalImage scan) {
+        this.scanArchive.remove(scan);
+    }
+
+    public void reviseScan(MedicalImage scan) {
+        // Implementation depends on how you want to update a scan.
+        // Example: find and replace based on filename.  Assumes filenames are unique!
+        int index = -1;
+        for(int i = 0; i < scanArchive.size(); i++){
+            if(scanArchive.get(i).getFilename().equals(scan.getFilename())){
+                index = i;
+                break;
+            }
+        }
+
+        if (index != -1) {
+            scanArchive.set(index, scan);
+        }
+    }
+
+    public void recordCondition(Condition condition) {
+        this.conditionList.add(condition);
+    }
+
+    public void eraseCondition(Condition condition) {
+        this.conditionList.remove(condition);
+    }
+
+    public void amendCondition(Condition condition) {
+         int index = conditionList.indexOf(condition); // Assuming equals is defined for Condition.
+        if (index != -1) {
+            conditionList.set(index, condition);
+        }
+    }
+
+        public List<Patient> getPatientDatabase() {
+        return patientDatabase;
+    }
+
+    public List<MedicalImage> getScanArchive() {
+        return scanArchive;
+    }
+
+    public List<Condition> getConditionList() {
+        return conditionList;
+    }
+}
