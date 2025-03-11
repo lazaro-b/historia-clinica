@@ -1,0 +1,69 @@
+@startuml
+class Patient {
+    - id : String
+    - name : String
+    - lastName : String
+    - dob : String
+    - sex : String
+    - weightKg : double
+    - heightCm : double
+    - address : String
+    + getId() : String
+    + getName() : String
+    + getLastName() : String
+    + getDob() : String
+    + getSex() : String
+    + getWeightKg() : double
+    + getHeightCm() : double
+    + getAddress() : String
+    + updateInfo(name : String, lastName : String, dob : String, sex : String, weightKg : double, heightCm : double, address : String) : void
+    + addScan(scan : MedicalImage) : void
+    + removeScan(scan : MedicalImage) : void
+    + addDiagnosis(diagnosis : Condition) : void
+    + removeDiagnosis(diagnosis : Condition) : void
+}
+
+class MedicalImage {
+    - filename : String
+    - scanDate : String
+    - imageType : String
+    - notes : String
+    + getFilename() : String
+    + getScanDate() : String
+    + getImageType() : String
+    + getNotes() : String
+}
+
+class Condition {
+    - diseaseName : String
+    - diagnosisDate : String
+    - treatmentPlan : String
+    + getDiseaseName() : String
+    + getDiagnosisDate() : String
+    + getTreatmentPlan() : String
+}
+
+class HospitalRecord {
+    - patientDatabase : List<Patient>
+    - scanArchive : List<MedicalImage>
+    - conditionList : List<Condition>
+    + findPatient(id : String) : Patient
+    + tallestPatients() : List<Patient>
+    + countFemaleDenguePatients() : int
+    + patientsByName() : List<Patient>
+    + patientsByWeight() : List<Patient>
+    + registerPatient(patient : Patient) : void
+    + dischargePatient(patient : Patient) : void
+    + modifyPatient(patient : Patient) : void
+    + storeScan(scan : MedicalImage) : void
+    + discardScan(scan : MedicalImage) : void
+    + reviseScan(scan : MedicalImage) : void
+    + recordCondition(condition : Condition) : void
+    + eraseCondition(condition : Condition) : void
+    + amendCondition(condition : Condition) : void
+}
+
+Patient "1" -- "0..*" MedicalImage : has
+Patient "1" -- "0..*" Condition : has
+HospitalRecord "1" -- "0..*" Patient : manages
+@enduml
